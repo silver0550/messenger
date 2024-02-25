@@ -5,13 +5,20 @@ namespace App\Http\Controllers;
 use App\Http\Requests\AuthRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
-use App\Models\User;
+use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+
+use Symfony\Component\HttpFoundation\Response as ResponseCode;
 
 class AuthController extends Controller
 {
+
+    public function __construct(private readonly AuthService $authService)
+    {
+    }
+
     public function login(AuthRequest $request): JsonResponse
     {
         $credentials = $request->validated();
@@ -21,26 +28,43 @@ class AuthController extends Controller
             'password' => $credentials['password'],
         ])) {
             $user = Auth::user();
-            $user->tokens()->where('name', $credentials['device_name'])->delete(); //TODO: a felhasználóra vonatkozzon
 
-            $token = $user->createToken($credentials['device_name'])->accessToken;
+            $token = $user->createToken($credentials['device_name'])->plainTextToken;
 
-            return response()->json(['user' => new UserResource($user), 'access_token' => $token], 200);
+            return response()->json(
+                ['access_token' => $token],
+                ResponseCode::HTTP_OK
+            );
         }
 
-        return response()->json(['massage' => __('auth.unauthorized')], 401);
+        return response()->json(
+            ['massage' => __('auth.Unauthorized')],
+            ResponseCode::HTTP_UNAUTHORIZED
+        );
+    }
+
+    public function logout(Request $request)
+    {
+        $user = Auth::user();
+
+        $user->tokens()->delete();
+
+        return response()->json(
+            [
+                'message' => __('auth.logged_out_success')
+            ],
+            ResponseCode::HTTP_OK
+        );
     }
 
     public function register(RegisterRequest $request): JsonResponse
     {
         $validated = $request->validated();
 
-        $user = User::create([
-            'name' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => Hash::make($validated['password']),
-        ]);
+        $user = $this->authService->createUser($validated);
 
-        return response()->json(['user' => $user], 201);
+        return response()->json(
+            ['user' => new UserResource($user)],
+            ResponseCode::HTTP_CREATED);
     }
 }

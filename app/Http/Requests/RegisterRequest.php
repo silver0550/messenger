@@ -23,7 +23,6 @@ class RegisterRequest extends FormRequest
             'name' => __('auth.name'),
             'email' => __('auth.email'),
             'password' => __('auth.password'),
-            'device_name' => __('auth.device_name'),
         ];
     }
 
