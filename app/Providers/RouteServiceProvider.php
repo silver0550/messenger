@@ -24,9 +24,9 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
-        });
+        $this->configureRateLimiting();
+
+        $this->defineCrud();
 
         $this->routes(function () {
             Route::middleware('api')
@@ -35,6 +35,26 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
+        });
+    }
+
+    public function configureRateLimiting(): void
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+    }
+
+    public function defineCrud(): void
+    {
+        Route::macro('crud', function ($prefix, $controller) {
+            Route::group(['prefix' => $prefix], function () use ($controller) {
+                Route::get('/', [$controller, 'index']);
+                Route::post('/', [$controller, 'store']);
+                Route::get('/{id}', [$controller, 'show']);
+                Route::put('/{id}', [$controller, 'update']);
+                Route::delete('/{id}', [$controller, 'destroy']);
+            });
         });
     }
 }
