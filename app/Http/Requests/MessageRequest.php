@@ -2,16 +2,21 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class MessageRequest extends FormRequest
+class MessageRequest extends BaseRequest
 {
     public function rules(): array
     {
         return [
-            'sender_id' => ['required', 'integer'],
             'recipient_id' => ['required', 'integer'],
             'message' => ['required'],
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'recipient_id' => __('message.recipient'),
+            'message' => __('message.message'),
         ];
     }
 }

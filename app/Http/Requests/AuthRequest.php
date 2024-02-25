@@ -6,7 +6,7 @@ use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class AuthRequest extends FormRequest
+class AuthRequest extends BaseRequest
 {
 
     public function rules(): array
@@ -25,14 +25,5 @@ class AuthRequest extends FormRequest
             'password' => __('auth.password'),
             'device_name' => __('auth.device_name'),
         ];
-    }
-
-    public function failedValidation(Validator $validator)
-    {
-        throw new HttpResponseException(response()->json([
-            'success' => false,
-            'message' => 'Validation errors',
-            'data' => $validator->errors()
-        ]));
     }
 }
