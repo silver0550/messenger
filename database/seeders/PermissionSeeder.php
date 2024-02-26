@@ -10,9 +10,11 @@ use Spatie\Permission\Models\Role;
 class PermissionSeeder extends Seeder
 {
     private array $permissions = [
+        'show_user',
         'create_user',
         'update_user',
         'delete_user',
+        'show_message',
         'create_message',
         'update_message',
         'delete_message',
@@ -25,13 +27,9 @@ class PermissionSeeder extends Seeder
         }
 
         $role = Role::create(['name' => 'user']);
-
-        $role->givePermissionTo('create_message');
+        $role->givePermissionTo('show_message', 'create_message');
 
         $role = Role::create(['name' => 'admin']);
-
-        foreach ($this->permissions as $permission) {
-            $role->givePermissionTo($permission);
-        }
+        $role->givePermissionTo($this->permissions);
     }
 }

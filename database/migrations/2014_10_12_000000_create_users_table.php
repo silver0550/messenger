@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\StatusEnum;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,8 +18,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->enum('status', array_map(fn($enum) => $enum->value, StatusEnum::cases()))
+                ->default(StatusEnum::ACTIVE);
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

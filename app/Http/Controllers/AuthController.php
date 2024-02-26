@@ -9,12 +9,10 @@ use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
 use Symfony\Component\HttpFoundation\Response as ResponseCode;
 
 class AuthController extends Controller
 {
-
     public function __construct(private readonly AuthService $authService)
     {
     }
@@ -50,9 +48,7 @@ class AuthController extends Controller
         $user->tokens()->delete();
 
         return response()->json(
-            [
-                'message' => __('auth.logged_out_success')
-            ],
+            ['message' => __('auth.logged_out_success')],
             ResponseCode::HTTP_OK
         );
     }
