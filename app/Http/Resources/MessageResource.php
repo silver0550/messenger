@@ -2,20 +2,19 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MessageResource extends JsonResource
 {
-    //TODO:
     public function toArray(Request $request): array
     {
         return [
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
-            'sender_id' => $this->sender_id,
-            'recipient_id' => $this->recipient_id,
+            'sender' => User::find($this->sender_id)->name,
+            'recipient' => User::find($this->recipient_id)?->name ?? 'all',
             'message' => $this->message,
+            'created_at' => $this->created_at,
         ];
     }
 }

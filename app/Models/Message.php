@@ -11,6 +11,8 @@ class Message extends Model
 {
     use SoftDeletes, HasFactory;
 
+    protected $guarded = ['id'];
+
     /*
    |--------------------------------------------------------------------------
    | RELATIONS

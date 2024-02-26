@@ -2,33 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\ApiCrudable;
+use App\Helpers\ResponseHelper;
 use Illuminate\Http\JsonResponse;
 
-class UserController extends Controller implements ApiCrudable
+class UserController extends Controller
 {
     public function index(): JsonResponse
     {
-        return response()->json('index', 200);
+        return ResponseHelper::outOfOrderJson();
     }
 
     public function show(int $id): JsonResponse
     {
-        return response()->json('show', 200);
+        return ResponseHelper::outOfOrderJson();
     }
 
     public function store(): JsonResponse
     {
-        return response()->json('store', 200);
+        return ResponseHelper::outOfOrderJson();
     }
 
     public function update(int $id): JsonResponse
     {
-        return response()->json('update', 200);
+        return ResponseHelper::outOfOrderJson();
     }
 
     public function destroy(int $id): JsonResponse
     {
-        return response()->json('destroy', 200);
+        return ResponseHelper::outOfOrderJson();
     }
 }

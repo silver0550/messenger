@@ -8,3 +8,10 @@ if (!function_exists('user')) {
         return Auth::user();
     }
 }
+
+if (!function_exists('userId')) {
+    function userId(): ?int
+    {
+        return Auth::user()?->id;
+    }
+}

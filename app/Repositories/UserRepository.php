@@ -11,4 +11,12 @@ class UserRepository extends BaseRepository
     {
         return User::class;
     }
+
+    public function getIdByName(string $name): ?int
+    {
+        return $this->model::query()
+            ->whereName($name)
+            ->first()
+            ?->id;
+    }
 }

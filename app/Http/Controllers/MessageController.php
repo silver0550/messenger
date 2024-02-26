@@ -2,44 +2,59 @@
 
 namespace App\Http\Controllers;
 
-use App\Contracts\ApiCrudable;
-use App\Http\Requests\MessageRequest;
+use App\Helpers\ResponseHelper;
+use App\Http\Requests\Message\CreateMessageRequest;
+use App\Http\Requests\Message\IndexMessageRequest;
+use App\Http\Resources\MessageResource;
 use App\Services\MessageService;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response as ResponseCode;
 
-class MessageController extends Controller /*implements ApiCrudable*/
+class MessageController extends Controller
 {
     public function __construct(private readonly MessageService $messageService)
     {
     }
 
-    public function index(): JsonResponse
+    public function index(IndexMessageRequest $request): JsonResponse
     {
-        return response()->json('index', 200);
+        $validated = $request->validated();
+
+        $filteredMessages = $this->messageService->getFilteredMessages(
+            $validated['orderById'] ?? false,
+            $validated['only'] ?? null ,
+        );
+
+        return response()->json(MessageResource::collection($filteredMessages) ,
+            ResponseCode::HTTP_OK);
     }
 
     public function show(int $id): JsonResponse
     {
-        return response()->json('show', 200);
+        return ResponseHelper::outOfOrderJson();
     }
 
-    public function store(MessageRequest $request): JsonResponse
+    public function store(CreateMessageRequest $request): JsonResponse
     {
+        if(!user()->hasPermissionTo('create_message')){
+
+            return ResponseHelper::forbiddenJson();
+        }
+
         $validated = $request->validated();
 
-        $this->messageService->createMessage($validated); //TODO: ITT vagyok
+        $createdMessage = $this->messageService->createMessage($validated);
 
-        return response()->json('store', 200);
+        return response()->json(new MessageResource($createdMessage), ResponseCode::HTTP_CREATED);
     }
 
     public function update(int $id): JsonResponse
     {
-        return response()->json('update', 200);
+        return ResponseHelper::outOfOrderJson();
     }
 
     public function destroy(int $id): JsonResponse
     {
-        return response()->json('destroy', 200);
+        return ResponseHelper::outOfOrderJson();
     }
 }

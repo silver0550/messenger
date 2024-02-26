@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Message;
 
-class MessageRequest extends BaseRequest
+use App\Http\Requests\BaseRequest;
+
+class CreateMessageRequest extends BaseRequest
 {
     public function rules(): array
     {
         return [
-            'recipient_id' => ['required', 'integer'],
+            'recipient' => ['nullable', 'string', 'max:255'],
             'message' => ['required'],
         ];
     }
@@ -15,7 +17,7 @@ class MessageRequest extends BaseRequest
     public function attributes(): array
     {
         return [
-            'recipient_id' => __('message.recipient'),
+            'recipient' => __('message.recipient'),
             'message' => __('message.message'),
         ];
     }
