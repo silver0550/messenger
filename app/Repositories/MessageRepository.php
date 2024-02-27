@@ -16,10 +16,12 @@ class MessageRepository extends BaseRepository
     public function getFilteredMessages(bool $orderById = false, ?string $only = null): Collection
     {
         return $this->model::query()
-            ->with(['sender' => function ($query) {
-                return $query->select('id', 'name');
-            }])
-            ->when($only, fn($query) => $query->whereRelation('sender', 'name', $only))
+            ->with([
+                'sender' => function ($query) {
+                    return $query->select('id', 'name');
+                }
+            ])
+            ->when($only, fn($query) => $query->whereRelation('sender', 'name', 'like', '%'.$only.'%'))
             ->when($orderById, fn($query) => $query->orderBy('id'))
             ->get();
     }
