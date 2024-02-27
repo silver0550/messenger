@@ -10,7 +10,7 @@ class IndexMessageRequest extends FormRequest
     {
         return [
             'orderById' => ['nullable', 'boolean'],
-            'only' => ['nullable', 'string', 'max:255'],
+            'only' => ['nullable', 'string', 'max:255', 'regex:/^[^\d]+$/'],
         ];
     }
 
