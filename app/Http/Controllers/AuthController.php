@@ -8,7 +8,6 @@ use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response as ResponseCode;
 
@@ -29,8 +28,6 @@ class AuthController extends Controller
             $user = Auth::user();
 
             if ($user->status == StatusEnum::INACTIVE) {
-
-                Auth::logout();
 
                 return response()->json(
                     ['message' => __('json_message.status', [
@@ -59,8 +56,6 @@ class AuthController extends Controller
         $user = Auth::user();
 
         $user->tokens()->delete();
-
-        Auth::logout();
 
         return response()->json(
             ['message' => __('auth.logged_out_success')],
