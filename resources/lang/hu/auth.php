@@ -7,4 +7,5 @@ return [
     'device_name' => 'Eszköz neve',
     'unauthorized' => 'Nincs jogosultsága',
     'logged_out_success' => 'Sikeres kijelentkezés',
+    'failed' => 'Hibás felhasználónév vagy jelszó'
 ];

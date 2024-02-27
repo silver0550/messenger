@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\StatusEnum;
 use App\Http\Requests\AuthRequest;
 use App\Http\Requests\RegisterRequest;
 use App\Http\Resources\UserResource;
@@ -27,6 +28,18 @@ class AuthController extends Controller
         ])) {
             $user = Auth::user();
 
+            if ($user->status == StatusEnum::INACTIVE) {
+
+                Auth::logout();
+
+                return response()->json(
+                    ['message' => __('json_message.status', [
+                        'attribute' => StatusEnum::INACTIVE->getReadableText()
+                        ])
+                    ],ResponseCode::HTTP_FORBIDDEN
+                );
+            }
+
             $token = $user->createToken($credentials['device_name'])->plainTextToken;
 
             return response()->json(
@@ -36,16 +49,18 @@ class AuthController extends Controller
         }
 
         return response()->json(
-            ['massage' => __('auth.Unauthorized')],
-            ResponseCode::HTTP_UNAUTHORIZED
+            ['message' => __('auth.failed')],
+            ResponseCode::HTTP_FORBIDDEN
         );
     }
 
-    public function logout(Request $request)
+    public function logout(): JsonResponse
     {
         $user = Auth::user();
 
         $user->tokens()->delete();
+
+        Auth::logout();
 
         return response()->json(
             ['message' => __('auth.logged_out_success')],
