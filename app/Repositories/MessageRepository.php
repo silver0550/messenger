@@ -20,4 +20,9 @@ class MessageRepository extends BaseRepository
             ->when($orderById, fn($query) => $query->orderBy('id'))
             ->get();
     }
+
+    public function getFirst(): ?Message
+    {
+        return $this->model::first();
+    }
 }

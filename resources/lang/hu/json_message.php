@@ -3,4 +3,5 @@
 return [
     'forbidden_message' => 'Nincs jogosultsága a kért művelethez',
     'out_of_order' => 'A funkció nincs használatban',
+    'status' => 'A felhasználó :attribute státuszban van'
 ];

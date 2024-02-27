@@ -19,4 +19,9 @@ class UserRepository extends BaseRepository
             ->first()
             ?->id;
     }
+
+    public function getFirst(): ?User
+    {
+        return $this->model::first();
+    }
 }

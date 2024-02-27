@@ -2,9 +2,9 @@
 
 namespace App\Http\Requests\Message;
 
-use App\Http\Requests\BaseRequest;
+use Illuminate\Foundation\Http\FormRequest;
 
-class CreateMessageRequest extends BaseRequest
+class CreateMessageRequest extends FormRequest
 {
     public function rules(): array
     {
