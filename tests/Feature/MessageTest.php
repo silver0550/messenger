@@ -107,7 +107,7 @@ class MessageTest extends TestCase
 
     public function testCanCreateMessage(): void
     {
-        $accessToken = $this->createAndLoginWith('admin');
+        $accessToken = $this->createAndLoginWith('admin')['token'];
 
         $response = $this->withHeaders(['Authorization' => 'Bearer '.$accessToken])
             ->post('/api/message', ['message' => 'Test message']);
@@ -121,21 +121,25 @@ class MessageTest extends TestCase
 
     public function testCanRetrieveMessageWithoutParams(): void
     {
-        $accessToken = $this->createAndLoginWith('Admin');
-        $this->createUser('Tester');
+        $loggingData = $this->createAndLoginWith('Admin');
 
+        $accessToken = $loggingData['token'];
+        $userId = $loggingData['user'];
+        $testerId = $this->createUser('Tester');
+
+        Log::debug($this->userRepository->getAll());
         Message::factory(9)->create([
-            'sender_id' => 1,
-            'recipient_id' => 2,
+            'sender_id' => $userId,
+            'recipient_id' => $testerId,
         ]);
         Message::factory()->create([
-            'sender_id' => 1,
+            'sender_id' => $userId,
             'recipient_id' => null,
             'message' => 'Test message',
         ]);
 
         Message::factory(10)->create([
-            'sender_id' => 2,
+            'sender_id' => $testerId,
             'recipient_id' => null,
         ]);
 
@@ -151,6 +155,39 @@ class MessageTest extends TestCase
                      ->where('9.message', 'Test message')
                      ->where('10.sender', 'Tester')
                      ->where('10.recipient', 'all')
+            );
+    }
+    public function testCanRetrieveMessageWithParams(): void
+    {
+        $loggingData = $this->createAndLoginWith('Admin');
+
+        $accessToken = $loggingData['token'];
+        $userId = $loggingData['user'];
+        $testerId = $this->createUser('Tester');
+
+        Message::factory(9)->create([
+            'sender_id' => $testerId,
+            'recipient_id' => $userId,
+        ]);
+        Message::factory()->create([
+            'sender_id' => $userId,
+            'recipient_id' => null,
+            'message' => 'Test message',
+        ]);
+
+        Message::factory(10)->create([
+            'sender_id' => $testerId,
+            'recipient_id' => null,
+        ]);
+
+        $response = $this->withHeaders(['Authorization' => 'Bearer '.$accessToken])
+            ->get('/api/message?only=Admin');
+
+        $response->assertStatus(ResponseCode::HTTP_OK)
+            ->assertJson(fn(AssertableJson $json) =>
+                $json->where('0.sender', 'Admin')
+                     ->where('0.recipient', 'all')
+                     ->where('0.message', 'Test message')
             );
     }
 
@@ -311,33 +348,33 @@ class MessageTest extends TestCase
 
     public function testCreateMessageHasMessageRequiredValidation(): void
     {
-        $data = [
-            'message' => 'Test message',
-        ];
-
-        $response = $this->json('POST', '/api/message', $data);
+        $accessToken = $this->createAndLoginWith('admin')['token'];
+        $response = $this->withHeaders(['Authorization' => 'Bearer '.$accessToken])
+            ->json('POST', '/api/message');
 
         $response->assertStatus(ResponseCode::HTTP_UNPROCESSABLE_ENTITY);
         $response->assertInValid(
-            ['password' => __('validation.required', ['attribute' => 'Jelszó'])]
+            ['message' => __('validation.required', ['attribute' => 'Üzenet'])]
         );
 
-        $user = $this->userRepository->getFirst();
+        $user = $this->messageRepository->getFirst();
         $this->assertNull($user);
     }
 
-    private function createUser(string $name): void
+    protected function createUser(string $name): int
     {
-        $this->userRepository->create([
+        $user =$this->userRepository->create([
             'name' => $name,
             'email' => $name.'@test.com',
             'password' => 'password',
         ]);
+
+        return $user->id;
     }
 
-    private function createAndLoginWith(string $name): string
+    protected function createAndLoginWith(string $name): array
     {
-        $this->createUser($name);
+        $user = $this->createUser($name);
 
         $loginData = [
             'email' => $name.'@test.com',
@@ -345,6 +382,9 @@ class MessageTest extends TestCase
             'device_name' => 'notebook',
         ];
 
-        return $this->post('/api/login', $loginData)->json('access_token');
+        return [
+            'token' => $this->post('/api/login', $loginData)->json('access_token'),
+            'user' => $user,
+        ];
     }
 }
